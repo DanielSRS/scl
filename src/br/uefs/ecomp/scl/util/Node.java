@@ -2,7 +2,7 @@ package br.uefs.ecomp.scl.util;
 
 /**
  * 
- * @author danie
+ * @author Daneil Santa Rosa
  *
  */
 public class Node
@@ -13,8 +13,10 @@ public class Node
 	private Node rightChild;
 	private int height;
 	
-	public Node()
+	public Node(String key, Object data)
 		{
+		this.key = key;
+		this.data = data;
 		height = 0;
 		}
 	

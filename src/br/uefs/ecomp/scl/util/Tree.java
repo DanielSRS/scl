@@ -13,16 +13,64 @@ public class Tree
 	
 	public Tree() {}
 	
+	public void insert(String key, Object data)
+	    {
+		// Atualiza a raiz caso tenha mudado.
+		this.root = insert(key, data, this.root);
+	    }
+
+
+
+	public Node insert(String key, Object data, Node root)
+		{
+		Node newNode = new Node(key, data);
+		
+		if(root == null) return newNode; // se a árvore, vazia.
+		
+		if(compare(key, root.getKey()) == 1) //se a chave menor que a da raiz...
+		    {
+			root.setLeftChild(insert(key, data, root.getLeftChild())); //insere na subarvore a esquerda
+			if(hight(root.getLeftChild()) - hight(root.getRightChild()) == 2) //verifica se houve desbalanceamento 
+			    {
+				if(compare(key, root.getLeftChild().getKey()) == 1) //se uma inserção externa... 
+				    {
+					root = right(root); //faz uma rotação simples a direita
+					}
+				else //se uma inserção interna 
+				    {
+					root = leftRight(root); //faz uma rotação dupla esquerda direita
+					}
+				}
+			}
+		else if(compare(key, root.getKey()) == -1) //se a chave maior que a da raiz... 
+			{
+			root.setRightChild(insert(key, data, root.getRightChild())); //insere na subarvore a direita
+			if(hight(root.getRightChild()) - hight(root.getLeftChild()) == 2) //verifica se houve desbalanceamento
+				{
+				if(compare(key, root.getRightChild().getKey()) == -1) //se externo 
+				    {
+					root = left(root); //rotação esquerda
+					}
+				else // se interno 
+				    {
+					root = rightLeft(root); //rotação direita 
+					}
+				}
+			}
+		root.setHeight(max(hight(root.getLeftChild()), hight(root.getRightChild())) + 1);
+		return root;
+		} 
+	
 	/**
 	 * 
 	 * @param fKey
 	 * @param root
 	 * @return
 	 */
-	public static Node search(String fKey, Node root)
+	public static Object search(String fKey, Node root)
 		{
 		if(root == null) return null; //se vazia
-		if(compare(fKey, root.getKey()) == 0) return root;  //se igual a raiz
+		if(compare(fKey, root.getKey()) == 0) return root.getData();  //se igual a raiz
 		if(compare(fKey, root.getKey()) == 1) return search(fKey, root.getLeftChild()); // se menor que a raiz
 		if(compare(fKey, root.getKey()) == -1) return search(fKey, root.getRightChild()); //se mair que a raiz
 		return null;
@@ -30,39 +78,65 @@ public class Tree
 	/**
 	 * 
 	 */
-	public void listAll()
+	public String listAll()
 		{
-		this.listAll(this.root);
+		return this.listAll(this.root);
 		}
 	
 	/**
 	 * 
 	 * @param root
 	 */
-	public void listAll(Node root) 
+	public String listAll(Node root) 
+		{
+		String s;
+		if(root != null)
+			{
+			
+			s = this.listAll(root.getLeftChild());
+			s = s + root.getKey() + " - ";
+			s = s + this.listAll(root.getRightChild());
+			return s;
+			}
+		return "";
+		}
+	
+	public void updateHeight()
+		{
+		this.updateHeight(this.root);
+		}
+	
+	public void updateHeight(Node root) 
 		{
 		if(root != null)
 			{
-			System.out.println(root.getKey());
-			this.listAll(root.getLeftChild());
-			this.listAll(root.getRightChild());
+			
+			this.updateHeight(root.getLeftChild());
+			root.setHeight(max(hight(root.getLeftChild()), hight(root.getRightChild())) + 1);
+			this.updateHeight(root.getRightChild());
+			root.setHeight(max(hight(root.getLeftChild()), hight(root.getRightChild())) + 1);
 			}
 		}
+	
 	
 	/**
 	 * 
 	 * @param rKey
 	 * @return
 	 */
-	public Node remove(String rKey)
+	public boolean remove(String rKey)
 		{
-		Node mother, node, p, q, root;
-		root = this.root;
+		// root é a raiz da arvore
+		// mother é o pai do no removido
+		// node é o no reovido
+		// p é pai do no removido
+		// q é substituto do no removido
+		Node mother, node, p, q;
 		
 		node = (searchForRemove(rKey)).get(1);
 		mother = (searchForRemove(rKey)).get(0);
 		
-		if(node == null) return root;
+		if(node == null) return false;
 		
 		if(node.getLeftChild() == null || node.getRightChild() == null)
 			{
@@ -72,9 +146,74 @@ public class Tree
 				}
 			else q = node.getLeftChild();
 			}
-		
-		return null;
+		else
+			{
+			p = node;
+			q = node.getLeftChild();
+			while(q.getRightChild() != null)
+				{
+				p = q;
+				q = q.getRightChild();
+				}
+			if(p != node)
+				{
+				p.setRightChild(q.getLeftChild());
+				q.setLeftChild(node.getLeftChild());
+				}
+			q.setRightChild(node.getRightChild());
+			}
+		updateHeight(this.root);
+		if(mother == null) // se removendo a raiz
+			{
+			this.root = balance(q);
+			return true;
+			}
+		if(compare(rKey, mother.getKey()) == 1)
+			{
+			mother.setLeftChild(balance(q));
+			return true;
+			}
+		else 
+			{
+			mother.setRightChild(balance(q));
+			return true;
+			}
 		}
+	
+	
+	public Node balance(Node q)
+		{
+		
+		if(q == null) return null;
+		
+		int z = hight(q.getLeftChild()) - hight(q.getRightChild());
+		if(z == 2)
+			{
+			int m = hight(q.getLeftChild().getLeftChild()) - hight(q.getLeftChild().getRightChild());
+			if(m == 1)
+				{
+				return right(q);
+				}
+			else if (m == -1)
+				{
+				return leftRight(q);
+				}
+			}
+		if(z == -2)
+			{
+			int m = hight(q.getLeftChild().getLeftChild()) - hight(q.getLeftChild().getRightChild());
+			if(m == -1)
+				{
+				return left(q);
+				}
+			else if (m == 1)
+				{
+				return rightLeft(q);
+				}
+			}
+		return q;
+		}
+	
 	
 	/**
 	 * 
@@ -235,6 +374,11 @@ public class Tree
 		{
 		if(root == null) return (-1);
 		return root.getHeight();
+		}
+	
+	public Node getRoot()
+		{
+		return this.root;
 		}
 	
 	}
