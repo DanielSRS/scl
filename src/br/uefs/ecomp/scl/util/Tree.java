@@ -4,23 +4,34 @@ import java.util.ArrayList;
 
 /**
  * 
- * @author danie
+ * @author Daniel Santa Rosa
  *
  */
 public class Tree
 	{
-	private Node root;
+	private Node root;  // Raiz da árvore
 	
 	public Tree() {}
 	
+	/**
+	 * 
+	 * @param key Valor de identificação do nó na árvore.
+	 * @param data Informação salva no nó
+	 */
 	public void insert(String key, Object data)
 	    {
 		// Atualiza a raiz caso tenha mudado.
 		this.root = insert(key, data, this.root);
 	    }
 
-
-
+    /**
+     * 
+     * @param key Valor de identificação do nó na árvore.
+     * @param data Informação salva no nó
+     * @param root Raiz da árvore/Subárvore
+     * @return Referência para a nova raiz da árvore dado que esta pode ter sido modificada
+     * durante a inserção.
+     */
 	public Node insert(String key, Object data, Node root)
 		{
 		Node newNode = new Node(key, data);
@@ -29,7 +40,7 @@ public class Tree
 		
 		if(compare(key, root.getKey()) == 1) //se a chave menor que a da raiz...
 		    {
-			root.setLeftChild(insert(key, data, root.getLeftChild())); //insere na subarvore a esquerda
+			root.setLeftChild(insert(key, data, root.getLeftChild())); //insere na subárvore a esquerda
 			if(hight(root.getLeftChild()) - hight(root.getRightChild()) == 2) //verifica se houve desbalanceamento 
 			    {
 				if(compare(key, root.getLeftChild().getKey()) == 1) //se uma inserção externa... 
@@ -44,7 +55,7 @@ public class Tree
 			}
 		else if(compare(key, root.getKey()) == -1) //se a chave maior que a da raiz... 
 			{
-			root.setRightChild(insert(key, data, root.getRightChild())); //insere na subarvore a direita
+			root.setRightChild(insert(key, data, root.getRightChild())); //insere na subárvore a direita
 			if(hight(root.getRightChild()) - hight(root.getLeftChild()) == 2) //verifica se houve desbalanceamento
 				{
 				if(compare(key, root.getRightChild().getKey()) == -1) //se externo 
@@ -63,9 +74,9 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param fKey
-	 * @param root
-	 * @return
+	 * @param fKey Valor da chave procurada (que será comparada com a chave que identifica o nó)
+	 * @param root Raiz da árvore onde está sendo procurada o valor
+	 * @return Dado armazenado no nó caso encontrado, se não existe, então null
 	 */
 	public static Object search(String fKey, Node root)
 		{
@@ -75,8 +86,11 @@ public class Tree
 		if(compare(fKey, root.getKey()) == -1) return search(fKey, root.getRightChild()); //se mair que a raiz
 		return null;
 		}
+
+
 	/**
 	 * 
+	 * @return String com as chaves de todos os elementos da árvore
 	 */
 	public String listAll()
 		{
@@ -85,7 +99,8 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param root
+	 * @param root Raiz da árvore/Subárvore listada
+	 * @return String com as chaves de todos os elementos da árvore
 	 */
 	public String listAll(Node root) 
 		{
@@ -101,11 +116,18 @@ public class Tree
 		return "";
 		}
 	
+	/**
+	 * 
+	 */
 	public void updateHeight()
 		{
 		this.updateHeight(this.root);
 		}
 	
+	/**
+	 * 
+	 * @param root 
+	 */
 	public void updateHeight(Node root) 
 		{
 		if(root != null)
@@ -121,14 +143,14 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param rKey
-	 * @return
+	 * @param rKey Valor de identificação do nó a ser removido
+	 * @return true se a remoção aconteceu, false se o elemento não existe na árvore (elemento não removido)
 	 */
 	public boolean remove(String rKey)
 		{
-		// root é a raiz da arvore
+		// root é a raiz da árvore
 		// mother é o pai do no removido
-		// node é o no reovido
+		// node é o no removido
 		// p é pai do no removido
 		// q é substituto do no removido
 		Node mother, node, p, q;
@@ -180,7 +202,11 @@ public class Tree
 			}
 		}
 	
-	
+	/**
+	 * 
+	 * @param q Nó/Subárvore possivelmente desbalanceado(a)
+	 * @return
+	 */
 	public Node balance(Node q)
 		{
 		
@@ -217,8 +243,9 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param rKey
-	 * @return
+	 * @param rKey Valor do nó procurado para remoão
+	 * @return Uma lista com dois nós, sendo o primeiro a raiz do nó a ser removido e o
+	 * segundo, uma referência para o nó removido. Se existir o elemento procurado, então null
 	 */
 	public ArrayList<Node> searchForRemove(String rKey)
 		{
@@ -242,16 +269,12 @@ public class Tree
 		return null;
 		}
 	
-	
-	
-	
-	
 	/**
 	 * 
-	 * @param unbalancedRoot
-	 * @return
+	 * @param unbalancedRoot Árvore/Subárvore desbalanceada
+	 * @return Nova raiz da árvore/subárvore
 	 */
-	public Node right(Node unbalancedRoot)
+	public Node right(Node unbalancedRoot) //Rotação simples a direita
 		{
 		Node aux = unbalancedRoot.getLeftChild();
 		unbalancedRoot.setLeftChild(aux.getRightChild());
@@ -265,10 +288,10 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param unbalancedRoot
-	 * @return
+	 * @param unbalancedRoot Árvore/Subárvore desbalanceada
+	 * @return Nova raiz da árvore/subárvore
 	 */
-	public Node left(Node unbalancedRoot)
+	public Node left(Node unbalancedRoot) //Rotação simples a esquerda
 		{
 		Node aux = unbalancedRoot.getRightChild();
 		unbalancedRoot.setRightChild(aux.getLeftChild());
@@ -282,8 +305,8 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param unbalancedRoot
-	 * @return
+	 * @param unbalancedRoot Árvore/Subárvore desbalanceada
+	 * @return Nova raiz da árvore/subárvore
 	 */
 	public Node leftRight(Node unbalancedRoot)
 		{
@@ -293,8 +316,8 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param unbalancedRoot
-	 * @return
+	 * @param unbalancedRoot Árvore/Subárvore desbalanceada
+	 * @return Nova raiz da árvore/subárvore
 	 */
 	public Node rightLeft(Node unbalancedRoot)
 		{
@@ -331,21 +354,11 @@ public class Tree
 		}
 	
 	
-/*	private Node getRoot()
-		{
-		return this.root;
-		}
-	
-	private void setRoot(Node newRoot)
-		{
-		this.root = newRoot;
-		} */
-	
 	/**
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a Um valor inteiro qualquer
+	 * @param b Um valor inteiro qualquer
+	 * @return O maior (inteiro) dos valores de a e b
 	 */
 	public static int max(int a, int b)
 		{
@@ -355,9 +368,9 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a Um valor inteiro qualquer
+	 * @param b Um valor inteiro qualquer
+	 * @return O menor (inteiro) dos valores de a e b
 	 */
 	public static int min(int a, int b)
 		{
@@ -367,15 +380,19 @@ public class Tree
 	
 	/**
 	 * 
-	 * @param root
-	 * @return
+	 * @param root Nó/subárvore que se deseja saber a altura
+	 * @return O valor (inteiro) da altura da subárvore/nó
 	 */
 	public int hight(Node root) 
 		{
-		if(root == null) return (-1);
+		if(root == null) return (-1); // A altura de um nó/filho/subárvore vazio é -1
 		return root.getHeight();
 		}
 	
+	/**
+	 * 
+	 * @return O nó raiz da árvore
+	 */
 	public Node getRoot()
 		{
 		return this.root;
